@@ -30,6 +30,7 @@ This separation allows the ingestion process to evolve independently from the fr
 * Spring Data JPA
 * JAXB (XML parsing)
 * Gradle 8.10
+* Swagger / OpenAPI (API documentation and endpoint testing)
 
 ### Frontend
 
@@ -40,6 +41,7 @@ This separation allows the ingestion process to evolve independently from the fr
 ### Database
 
 * PostgreSQL 16.11
+* DBeaver (Database IDE for inspection, queries, and schema management)
 
 ---
 
