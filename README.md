@@ -49,36 +49,24 @@ This separation allows the ingestion process to evolve independently from the fr
 
 ### Prerequisites
 
+* Docker
 * Java 23 or higher
 * Node.js 22.15.0
-* PostgreSQL 16.11
-* Gradle 8.10
 * Git
-* GitHub
 
 ---
 
-### Step 1: Pull PostgreSQL Image
-
-Download the official PostgreSQL image from Docker Hub:
-
-```bash
-docker pull postgres:16.11
-```
-
----
-
-### Step 2: Pull Preconfigured Database Image
+### Step 1: Pull Preconfigured Database Image
 
 Download the preconfigured database image used by this project:
 
 ```bash
-docker pull johncifuentes/legacy-bridge:tagname
+docker pull johncifuentes/legacy-bridge:v1
 ```
 
 ---
 
-### Step 3: Start Database (legacy-bridge)
+### Step 2: Start Database (legacy-bridge)
 
 Run the database container:
 
@@ -86,14 +74,14 @@ Run the database container:
 docker run -d \
   --name legacy-bridge-db \
   -p 5432:5432 \
-  johncifuentes/legacy-bridge:tagname
+  johncifuentes/legacy-bridge:v1
 ```
 
 Ensure the database is running before starting the backend.
 
 ---
 
-### Step 4: Clone Backend Repository
+### Step 3: Clone Backend Repository
 
 Clone the backend source code from GitHub:
 
@@ -104,7 +92,7 @@ cd LegacyProyect
 
 ---
 
-### Step 5: Build and Run Backend (Gradle)
+### Step 4: Build and Run Backend (Gradle)
 
 The backend is built using Gradle.
 
@@ -126,9 +114,15 @@ The backend API will be available at:
 http://localhost:8080
 ```
 
+Swagger UI (for testing and exploring all endpoints) is available at:
+
+```
+http://localhost:8080/swagger-ui.html
+```
+
 ---
 
-### Step 6: Clone Frontend Repository
+### Step 5: Clone Frontend Repository
 
 Clone the frontend source code from GitHub:
 
@@ -139,7 +133,7 @@ cd legacy-bridge
 
 ---
 
-### Step 7: Build and Run Frontend (Angular)
+### Step 6: Build and Run Frontend (Angular)
 
 The frontend application is built using Angular.
 
@@ -150,29 +144,6 @@ npm install
 ```
 
 2. Start the development server:
-
-```bash
-ng serve
-```
-
-The frontend will be available at:
-
-```
-http://localhost:4200
-```
-
----
-
-### Frontend Setup
-
-1. Navigate to the frontend directory.
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Start the application:
 
 ```bash
 ng serve
