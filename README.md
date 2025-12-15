@@ -51,12 +51,68 @@ This separation allows the ingestion process to evolve independently from the fr
 * Node.js 22.15.0
 * PostgreSQL 16.11
 * Gradle 8.10
+* Git
+* GitHub
 
-### Backend Setup
+---
 
-1. Create a PostgreSQL database.
-2. Configure database credentials in `application.yml`.
-3. From the backend directory, run:
+### Step 1: Pull PostgreSQL Image
+
+Download the official PostgreSQL image from Docker Hub:
+
+```bash
+docker pull postgres:16.11
+```
+
+---
+
+### Step 2: Pull Preconfigured Database Image
+
+Download the preconfigured database image used by this project:
+
+```bash
+docker pull johncifuentes/legacy-bridge:tagname
+```
+
+---
+
+### Step 3: Start Database (legacy-bridge)
+
+Run the database container:
+
+```bash
+docker run -d \
+  --name legacy-bridge-db \
+  -p 5432:5432 \
+  johncifuentes/legacy-bridge:tagname
+```
+
+Ensure the database is running before starting the backend.
+
+---
+
+### Step 4: Clone Backend Repository
+
+Clone the backend source code from GitHub:
+
+```bash
+git clone https://github.com/JohnCifuentes/LegacyProyect.git
+cd LegacyProyect
+```
+
+---
+
+### Step 5: Build and Run Backend (Gradle)
+
+The backend is built using Gradle.
+
+1. Download dependencies and build the project:
+
+```bash
+./gradlew build
+```
+
+2. Run the Spring Boot application:
 
 ```bash
 ./gradlew bootRun
@@ -66,6 +122,41 @@ The backend API will be available at:
 
 ```
 http://localhost:8080
+```
+
+---
+
+### Step 6: Clone Frontend Repository
+
+Clone the frontend source code from GitHub:
+
+```bash
+git clone https://github.com/JohnCifuentes/legacy-bridge.git
+cd legacy-bridge
+```
+
+---
+
+### Step 7: Build and Run Frontend (Angular)
+
+The frontend application is built using Angular.
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start the development server:
+
+```bash
+ng serve
+```
+
+The frontend will be available at:
+
+```
+http://localhost:4200
 ```
 
 ---
@@ -95,30 +186,54 @@ http://localhost:4200
 
 ## Database Schema Design
 
-The database schema follows normalization principles to ensure data consistency and flexibility:
+The database schema follows normalization principles to ensure data consistency, flexibility, and extensibility:
 
 * **transaction**: Stores raw and normalized transaction data (amount, date, description, currency).
 * **category**: Represents high-level spending categories (e.g., Food, Transportation).
 * **category_detail**: Defines categorization rules based on keywords and priority.
-* **merchant**: Stores normalized merchant information to avoid duplication.
+* **merchant**: Stores merchant definitions along with keyword sets used to identify merchants from transaction descriptions.
 
-Transactions reference categories and merchants by ID, allowing categorization rules to evolve without modifying historical transaction data.
+Both **category** and **merchant** entities are rule-driven and decoupled from transactions. Transactions reference categories and merchants by ID, allowing new rules or keywords to be added without modifying historical data.
+
+If no matching rule is found for either category or merchant, a default value is assigned (e.g., `UNCATEGORIZED` or `UNKNOWN_MERCHANT`) to preserve data integrity.
 
 ---
 
 ## Data Ingestion Logic
 
-Transaction data is ingested from a legacy XML-based API.
+Transaction data is ingested from a legacy XML-based API using a resilient and rule-driven process.
 
 The ingestion flow:
 
 1. Fetch XML data from the legacy source.
 2. Parse XML into DTOs using JAXB.
 3. Normalize values such as dates, amounts, and descriptions.
-4. Apply categorization rules based on configured keywords.
+4. Resolve merchant and category using keyword-based matching rules.
 5. Persist normalized entities into the database.
 
-This process is designed to be repeatable and resilient to partial failures.
+### Merchant Matching Logic
+
+Merchant identification is performed using a keyword-matching algorithm:
+
+* Each merchant contains a set of keywords.
+* A matching function calculates the percentage of keyword coincidence between the transaction description and the merchant keywords.
+* If the match percentage is greater than **90%**, the corresponding merchant is assigned to the transaction.
+* If no merchant meets the threshold, a default merchant value is assigned.
+
+### Category Matching Logic
+
+Category classification follows a stricter rule:
+
+* Category keywords must match **100%** to be assigned.
+* This ensures deterministic and unambiguous categorization.
+* If no category rule is satisfied, a default category is assigned.
+
+### Date Normalization
+
+* Multiple date formats are supported through predefined parsing rules.
+* If an incoming date format does not match any known pattern, a default date value is assigned.
+
+This approach ensures the ingestion process is tolerant to unexpected data formats while maintaining consistent and reliable outputs.
 
 ---
 
@@ -134,22 +249,3 @@ The system applies defensive error handling to manage incorrect or malformed leg
 This ensures the ingestion pipeline remains robust even when upstream data quality is inconsistent.
 
 ---
-
-## (Optional) Docker
-
-If Docker is available, the application can be containerized:
-
-```bash
-docker build -t expense-categorization-app .
-docker run -p 8080:8080 expense-categorization-app
-```
-
----
-
-## Future Improvements
-
-* User-defined categorization rules via the frontend
-* Rule prioritization and versioning
-* Asynchronous ingestion using message queues
-* Enhanced monitoring and metrics
-* Role-based access control
