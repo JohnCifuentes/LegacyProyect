@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/legacy_bridge_app
+    username: app_user
+    password: 4app_s3cR3tp4ssw0rd
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: lbas001
+
+  flyway:
+    enabled: false
+    schemas: lbas001
+    default-schema: lbas001
