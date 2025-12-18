@@ -2,59 +2,60 @@
 
 ## Overview
 
-This project is an expense categorization platform designed to ingest transaction data from a legacy XML-based API, normalize and persist it in a relational database, and provide a frontend application to visualize spending by category and merchant.
+This project is an expense categorization platform that:
 
-The main objective is to transform raw financial transactions into meaningful, categorized insights that help stakeholders better understand spending patterns and make informed business decisions.
+- Consumes transaction data from a **simulated XML service** (Spring Boot).  
+- Normalizes and persists the data into **PostgreSQL**.  
+- Allows performing CRUD operations through a **Node.js backend**.  
+- Provides a **simple frontend in HTML/CSS/JS** to visualize and manage expenses by category and merchant.  
+
+The main goal is to transform raw financial transactions into categorized insights to understand spending patterns and make informed decisions.
 
 ---
 
 ## Architecture
 
-The solution follows a layered and decoupled architecture:
+The solution follows a **modular and decoupled architecture**:
 
-* **Backend API**: Handles business logic, data ingestion, categorization rules, and persistence.
-* **Ingestion Module**: Responsible for consuming and parsing legacy XML data.
-* **Database**: Stores normalized transactions, categories, merchants, and rule definitions.
-* **Frontend Application**: Provides a user-friendly interface for visualizing expenses.
+* **Spring Boot (External Microservice)**: Generates random XML data.  
+* **Node.js Backend**: Connects to the database, exposes CRUD endpoints, and cleans XML data.  
+* **PostgreSQL Database**: Stores transactions, categories, merchants, and categorization rules.  
+* **Frontend (HTML/CSS/JS)**: Consumes Node.js endpoints and provides visualization and management tools.
 
-This separation allows the ingestion process to evolve independently from the frontend and ensures scalability and maintainability.
+This separation allows each module to evolve independently while ensuring scalability and maintainability.
 
 ---
 
 ## Tech Stack
 
-### Backend
+### Spring Boot (XML Simulator)
 
-* Java 23
-* Spring Boot 3.4.1
-* Spring Data JPA
-* JAXB (XML parsing)
-* Gradle 8.10
-* Swagger / OpenAPI (API documentation and endpoint testing)
+* Java 23  
+* Spring Boot 3.4.1  
+* Gradle 8.10  
+* JAXB (XML parsing)  
+* Swagger / OpenAPI  
+
+### Node.js Backend
+
+* Node.js 22+  
+* Express.js  
+* PostgreSQL  
+* Swagger / OpenAPI  
 
 ### Frontend
 
-* Angular 19.2.9
-* TypeScript 5.7.3
-* HTML / CSS
+* HTML / CSS / JavaScript  
+* `npx serve` to serve the application locally  
 
 ### Database
 
-* PostgreSQL 16.11
-* DBeaver (Database IDE for inspection, queries, and schema management)
+* PostgreSQL 16.11  
+* DBeaver (optional, for database inspection)  
 
 ---
 
 ## How to Run Locally
-
-### Prerequisites
-
-* Docker
-* Java 23 or higher
-* Node.js 22.15.0
-* Git
-
----
 
 ### Step 1: Pull Preconfigured Database Image
 
@@ -62,7 +63,7 @@ Download the preconfigured database image used by this project:
 
 ```bash
 docker pull johncifuentes/legacy-bridge:v1
-```
+````
 
 ---
 
@@ -81,9 +82,7 @@ Ensure the database is running before starting the backend.
 
 ---
 
-### Step 3: Clone Backend Repository
-
-Clone the backend source code from GitHub:
+### Step 3: Clone Spring Boot Repository
 
 ```bash
 git clone https://github.com/JohnCifuentes/LegacyProyect.git
@@ -92,68 +91,69 @@ cd LegacyProyect
 
 ---
 
-### Step 4: Build and Run Backend (Gradle)
+### Step 4: Build and Run Spring Boot Backend
 
-The backend is built using Gradle.
-
-1. Download dependencies and build the project:
+Build the project and run Spring Boot to expose the XML microservice:
 
 ```bash
 ./gradlew build
-```
-
-2. Run the Spring Boot application:
-
-```bash
 ./gradlew bootRun
 ```
 
-The backend API will be available at:
+**Swagger UI:**
 
-```
-http://localhost:8080
-```
-
-Swagger UI (for testing and exploring all endpoints) is available at:
-
-```
+```text
 http://localhost:8080/swagger-ui.html
 ```
 
+> This service generates XML data and is required to simulate the external microservice that provides the XML input.
+
 ---
 
-### Step 5: Clone Frontend Repository
-
-Clone the frontend source code from GitHub:
+### Step 5: Clone Node.js Backend Repository
 
 ```bash
-git clone https://github.com/JohnCifuentes/legacy-bridge.git
-cd legacy-bridge
+git clone https://github.com/JohnCifuentes/legacy-bridge-backend.git
+cd legacy-bridge-backend
 ```
 
----
-
-### Step 6: Build and Run Frontend (Angular)
-
-The frontend application is built using Angular.
-
-1. Install dependencies:
+**Install dependencies:**
 
 ```bash
 npm install
 ```
 
-2. Start the development server:
+**Run Node.js Backend:**
 
 ```bash
-ng serve
+node index.js
 ```
 
-The frontend will be available at:
+**Swagger UI:**
 
+```text
+http://localhost:3001/swagger/#/
 ```
-http://localhost:4200
+
+> Node.js connects to PostgreSQL and exposes all CRUD endpoints. It also implements the logic to clean XML data from the Spring Boot microservice.
+
+---
+
+### Step 6: Clone Frontend Repository
+
+```bash
+git clone https://github.com/JohnCifuentes/legacy-bridge-fronted.git
+cd legacy-bridge-fronted
 ```
+
+**Run Frontend:**
+
+```bash
+npx serve
+```
+
+* No additional libraries are required.
+* It directly consumes the Node.js backend endpoints.
 
 ---
 
@@ -220,5 +220,3 @@ The system applies defensive error handling to manage incorrect or malformed leg
 * All errors include contextual logging to facilitate debugging and monitoring.
 
 This ensures the ingestion pipeline remains robust even when upstream data quality is inconsistent.
-
----

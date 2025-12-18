@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/legacy_bridge_app
+    url: jdbc:postgresql://127.0.0.1:5432/legacy_bridge_app
     username: app_user
-    password: 4app_s3cR3tp4ssw0rd
+    password: 4app_S3cR3tp4ssw0rd
     driver-class-name: org.postgresql.Driver
 
   jpa:

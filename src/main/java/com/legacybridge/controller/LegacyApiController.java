@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/legacy")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public class LegacyApiController {
     private final LegacyApiService legacyService;
 
